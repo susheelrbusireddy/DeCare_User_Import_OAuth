@@ -24,6 +24,10 @@ public final class ImportedPasswordSupport {
             throw new IllegalArgumentException("Password value must contain algorithm prefix like {SSHA}");
         }
 
+        byte[] comboValue, saltOutput, hashOutput;
+        String subshaValue = new String(), salt, hashpswd, userId, shaAlgo;
+        int index, arrayLength;
+
         String algorithmPrefix = shaValue.substring(0, braceIndex + 1);
         String encodedPayload = shaValue.substring(braceIndex + 1);
 
@@ -31,11 +35,11 @@ public final class ImportedPasswordSupport {
         hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_1);
 
         if (algorithmPrefix.startsWith("{SSHA")) {
-            byte[] comboValue = Base64.getDecoder().decode(encodedPayload);
-            int arrayLength = comboValue.length;
+            comboValue = Base64.getDecoder().decode(encodedPayload);
+            arrayLength = comboValue.length;
 
-            byte[] saltOutput = new byte[8];
-            byte[] hashOutput = new byte[arrayLength - 8];
+            saltOutput = new byte[8];
+            hashOutput = new byte[arrayLength - 8];
 
             if ("prefix".equalsIgnoreCase(saltOrder)) {
                 System.arraycopy(comboValue, 0, saltOutput, 0, 8);
@@ -45,13 +49,23 @@ public final class ImportedPasswordSupport {
                 System.arraycopy(comboValue, 0, hashOutput, 0, arrayLength - 8);
             }
 
-            String hashpswd = Base64.getMimeEncoder().encodeToString(hashOutput).replace("\r\n", "");
-            String salt = Base64.getMimeEncoder().encodeToString(saltOutput).replace("\r\n", "");
+            hashpswd = Base64.getMimeEncoder().encodeToString(hashOutput).replace("\r\n", "");
+            salt = Base64.getMimeEncoder().encodeToString(saltOutput).replace("\r\n", "");
 
             hash.setValue(hashpswd);
             hash.setSalt(salt);
             hash.setSaltOrder(normalizeSaltOrder(saltOrder));
-        } else {
+
+        } else if (algorithmPrefix.startsWith("{SHA")) {
+                            comboValue = Base64.getDecoder().decode(encodedPayload);
+                            arrayLength = comboValue.length;
+                            hashOutput = new byte[arrayLength];
+                            System.arraycopy(comboValue, 0, hashOutput, 0, arrayLength);
+                            hashpswd = Base64.getMimeEncoder().encodeToString(hashOutput);
+                            hashpswd = hashpswd.replace("\r\n", "");
+                            hash.setValue(hashpswd);
+                        }
+         else {
             throw new IllegalArgumentException(
                     "Unsupported password format: " + algorithmPrefix + " (only {SSHA} is supported)");
         }
