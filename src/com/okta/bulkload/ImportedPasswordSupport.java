@@ -32,7 +32,6 @@ public final class ImportedPasswordSupport {
         String encodedPayload = shaValue.substring(braceIndex + 1);
 
         PasswordCredentialHash hash = new PasswordCredentialHash();
-        hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_1);
 
         if (algorithmPrefix.startsWith("{SSHA")) {
             comboValue = Base64.getDecoder().decode(encodedPayload);
@@ -67,8 +66,28 @@ public final class ImportedPasswordSupport {
                         }
          else {
             throw new IllegalArgumentException(
-                    "Unsupported password format: " + algorithmPrefix + " (only {SSHA} is supported)");
+                    "Unsupported password format: " + algorithmPrefix + " (only {SHA},{SSHA},{SHA256},{SSHA256},{SHA512},{SSHA512} is supported)");
         }
+
+        switch (algorithmPrefix) {
+                            case "{SSHA512}":
+                                hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_512);
+                                break;
+                            case "{SSHA256}":
+                                hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_256);
+                                break;
+                            case "{SSHA}":
+                                hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_1);
+                                break;
+                            case "{SHA512}":
+                                hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_512);
+                                break;
+                            case "{SHA256}":
+                                hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_256);
+                                break;
+                            default:
+                                hash.setAlgorithm(PasswordCredentialHashAlgorithm.SHA_1);
+                        }
 
         PasswordCredential password = new PasswordCredential();
         password.setHash(hash);
