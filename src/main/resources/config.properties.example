@@ -1,0 +1,50 @@
+###############################################
+##### Okta API (OAuth 2.0 service app) #####
+###############################################
+
+# Okta org URL (https://your-domain.okta.com or legacy org property)
+orgUrl=https://your-domain.oktapreview.com
+
+# OAuth 2.0 private-key JWT (register a service app in Okta Admin)
+clientId=0oaXXXXXXXXXXXX
+# Optional: public key id when multiple keys exist on the app
+kid=
+
+# Path to PEM private key OR inline PEM (use one, not both)
+privateKeyPath=/path/to/private-key.pem
+# privateKey=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----
+
+# Comma-separated scopes (okta.users.manage required for user import)
+oauthScopes=okta.users.manage
+
+# Optional: use a pre-obtained access token instead of private-key exchange
+# oauth2AccessToken=
+
+# SDK rate-limit retries (batch jobs: high retries, no overall timeout)
+rateLimitMaxRetries=5
+rateLimitRequestTimeoutSeconds=0
+
+activateUsers=true
+saltOrder=POSTFIX
+
+###############################################
+##### CSV file and user schema #####
+###############################################
+csvHeaderRow=firstName,lastName,email,login,value
+csvLoginField=login
+csvPasswordField=value
+csvHeader.login=login
+csvHeader.email=email
+csvHeader.firstName=firstName
+csvHeader.lastName=lastName
+
+###############################################
+##### Okta groups #####
+###############################################
+groupIDs=
+
+###############################################
+##### Concurrency #####
+###############################################
+numConsumers=5
+bufferSize=10000
